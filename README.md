@@ -9,6 +9,10 @@
 - 维护计划：制定和管理设备维护计划，跟踪维护任务执行情况
 - 报告管理：生成和管理设备运行报告、故障分析报告等
 
+## GitHub 仓库
+
+[https://github.com/creedfy/--0.1.git](https://github.com/creedfy/--0.1.git)
+
 ## 技术栈
 
 - React 18
