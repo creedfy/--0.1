@@ -1,5 +1,17 @@
 // 全局类型定义
 
+// 用户角色类型
+export type Role = 'developer' | 'admin' | 'guest';
+
+// 用户接口
+export interface User {
+  id: string;
+  username: string;
+  role: Role;
+  password?: string; // 仅用于模拟认证
+}
+
+
 // 设备状态类型
 export type DeviceStatus = 'normal' | 'warning' | 'critical';
 
@@ -43,11 +55,15 @@ export interface NotificationItem {
   read: boolean;
 }
 
+// 知识库条目内容类型
+export type KnowledgeBaseContentType = 'text' | 'video' | 'database_info';
+
 // 知识库条目接口
 export interface KnowledgeBaseEntry {
   id: string;
   title: string;
-  content: string; // Markdown格式的内容
+  type: KnowledgeBaseContentType; // 内容类型
+  content: string; // 根据type存储不同内容：Markdown文本、视频URL、数据库信息文本
   tags?: string[];
   createdAt: string;
   updatedAt: string;

@@ -1,4 +1,5 @@
 import React, { useState, useCallback } from 'react';
+import { useAuth } from '../contexts/AuthContext'; // 导入 useAuth
 import { Layout, Typography, Avatar, Badge, Space, Dropdown, Switch, Menu, notification } from 'antd';
 import { SettingOutlined, BellOutlined, UserOutlined, LogoutOutlined, SunOutlined, MoonOutlined } from '@ant-design/icons';
 import type { MenuProps, NotificationInstance } from 'antd';
@@ -15,10 +16,11 @@ interface NotificationItem {
 
 interface AppHeaderProps {
   onThemeChange?: (isDark: boolean) => void;
-  onLogout?: () => void;
+  // onLogout is now handled by AuthContext
 }
 
-const AppHeader: React.FC<AppHeaderProps> = ({ onThemeChange, onLogout }) => {
+const AppHeader: React.FC<AppHeaderProps> = ({ onThemeChange }) => {
+  const { currentUser, logout, isAuthenticated } = useAuth();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([
     {
@@ -58,7 +60,21 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onThemeChange, onLogout }) => {
     ),
   }));
 
-  const userMenu: MenuProps['items'] = [
+    const handleLogout = () => {
+    logout();
+    // Optionally, redirect to login page or show notification
+    notification.success({ message: '已成功退出登录' });
+  };
+
+  const userMenu: MenuProps['items'] = isAuthenticated && currentUser ? [
+    {
+      key: 'userInfo',
+      label: `用户: ${currentUser.username} (${currentUser.role})`,
+      disabled: true, // Just for display
+    },
+    {
+      type: 'divider'
+    },
     {
       key: 'profile',
       label: '个人信息',
@@ -85,7 +101,48 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onThemeChange, onLogout }) => {
       key: 'logout',
       label: '退出登录',
       icon: <LogoutOutlined />,
-      onClick: onLogout
+      onClick: handleLogout // 使用新的 handleLogout
+    }
+  ] : [
+    // Potentially add a Login button here if not authenticated, 
+    // or handle login via a dedicated login page.
+    // For now, we assume login happens elsewhere or App.tsx handles unauthenticated state.
+    {
+      key: 'loginInfo',
+      label: '未登录',
+      disabled: true,
+    }
+  ];
+
+  // Original userMenu definition starts here, so we replace it entirely
+  // const userMenu: MenuProps['items'] = [
+    {
+      key: 'profile',
+      label: '个人信息',
+      icon: <UserOutlined />
+    },
+    {
+      key: 'theme',
+      label: (
+        <Space>
+          主题设置
+          <Switch
+            checkedChildren={<MoonOutlined />}
+            unCheckedChildren={<SunOutlined />}
+            checked={isDarkMode}
+            onChange={handleThemeChange}
+          />
+        </Space>
+      )
+    },
+    {
+      type: 'divider'
+    },
+    {
+      key: 'logout',
+      label: '退出登录',
+      icon: <LogoutOutlined />,
+      onClick: handleLogout
     }
   ];
 
@@ -110,7 +167,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({ onThemeChange, onLogout }) => {
         <Dropdown menu={{ items: userMenu }} placement="bottomRight">
           <Space>
             <Avatar icon={<UserOutlined />} />
-            <span>管理员</span>
+            <span>{isAuthenticated && currentUser ? currentUser.username : '访客'}</span>
           </Space>
         </Dropdown>
       </Space>
