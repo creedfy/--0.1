@@ -1,6 +1,56 @@
-import React, { useState } from 'react';
-import { Card, Table, Button, Modal, Form, Select, DatePicker, Space, Tag } from 'antd';
-import { FileTextOutlined, DownloadOutlined, EyeOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import { Card, Table, Button, Modal, Form, Select, DatePicker, Space, Tag, message } from 'antd';
+import { FileTextOutlined, DownloadOutlined, EyeOutlined, ExperimentOutlined } from '@ant-design/icons';
+import ReportGenerator from '../components/ReportGenerator';
+import { ReportConfig, KnowledgeBaseEntry, DeviceData } from '../types';
+
+// 模拟设备数据 (实际应用中应从API获取)
+const mockDeviceData: DeviceData[] = [
+  {
+    key: 'dev1',
+    name: '离心泵-01',
+    type: '离心泵',
+    location: '车间A',
+    status: 'normal',
+    lastMaintenance: '2023-10-15',
+  },
+  {
+    key: 'dev2',
+    name: '电机-02',
+    type: '电机',
+    location: '车间B',
+    status: 'warning',
+    lastMaintenance: '2023-09-20',
+  },
+  {
+    key: 'dev3',
+    name: '风机-03',
+    type: '风机',
+    location: '车间C',
+    status: 'critical',
+    lastMaintenance: '2023-11-01',
+  },
+];
+
+// 模拟知识库数据 (实际应用中应从API获取或状态管理)
+const mockKnowledgeBaseData: KnowledgeBaseEntry[] = [
+  {
+    id: 'kb1',
+    title: '离心泵常见故障诊断',
+    content: '### 1. 振动过大\n\n- **原因分析：** 叶轮不平衡、轴承损坏、联轴器不对中\n- **处理建议：** 校正平衡、更换轴承、重新对中',
+    tags: ['离心泵', '故障诊断', '振动'],
+    createdAt: '2023-10-15',
+    updatedAt: '2023-10-16',
+  },
+  {
+    id: 'kb2',
+    title: '电机轴承异响处理',
+    content: '### 症状：电机运行时有刺耳的金属摩擦声...',
+    tags: ['电机', '轴承', '异响'],
+    createdAt: '2023-11-01',
+    updatedAt: '2023-11-05',
+  },
+];
 
 type ReportStatus = 'normal' | 'warning' | 'critical';
 
@@ -14,8 +64,17 @@ interface Report {
 }
 
 const ReportManagement: React.FC = () => {
-  const [isPreviewVisible, setIsPreviewVisible] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false); // Renamed from isPreviewVisible for clarity
+  const [isReportGeneratorVisible, setIsReportGeneratorVisible] = useState(false);
   const [form] = Form.useForm();
+  const [devices, setDevices] = useState<DeviceData[]>([]);
+  const [knowledgeBase, setKnowledgeBase] = useState<KnowledgeBaseEntry[]>([]);
+
+  // 模拟数据加载
+  useEffect(() => {
+    setDevices(mockDeviceData);
+    setKnowledgeBase(mockKnowledgeBaseData);
+  }, []);
 
   // 模拟报告数据
   const [reports] = useState<Report[]>([
@@ -95,9 +154,20 @@ const ReportManagement: React.FC = () => {
     }
   ];
 
-  const handleGenerateReport = () => {
+  const handleGenerateSimpleReport = () => {
     form.resetFields();
-    setIsPreviewVisible(true);
+    setIsModalVisible(true);
+  };
+
+  const handleGenerateAdvancedReport = () => {
+    setIsReportGeneratorVisible(true);
+  };
+
+  const handleAdvancedReportGenerated = (config: ReportConfig) => {
+    console.log('高级报告配置:', config);
+    // 在这里可以添加将报告保存到列表或进一步处理的逻辑
+    message.success(`已提交生成 ${config.reportType} 关于设备 ${devices.find(d => d.key === config.deviceId)?.name} 的高级报告`);
+    // 实际应用中可能会将新生成的报告添加到 reports 状态中
   };
 
   const handlePreview = (record: Report) => {
@@ -112,9 +182,11 @@ const ReportManagement: React.FC = () => {
 
   const handleModalOk = () => {
     form.validateFields().then(values => {
-      // 实现生成报告的逻辑
-      console.log('生成报告:', values);
-      setIsPreviewVisible(false);
+      // 实现生成简单报告的逻辑
+      console.log('生成简单报告:', values);
+      // 可以在这里将新报告添加到 reports 状态中
+      message.success('简单报告已生成 (模拟)');
+      setIsModalVisible(false);
     });
   };
 
@@ -123,10 +195,19 @@ const ReportManagement: React.FC = () => {
       <Card
         title="报告管理"
         extra={
+          <Space>
+            <Button
+              type="default"
+              icon={<ExperimentOutlined />}
+              onClick={handleGenerateAdvancedReport}
+            >
+              生成高级报告
+            </Button>
+            <Button
           <Button
             type="primary"
             icon={<FileTextOutlined />}
-            onClick={handleGenerateReport}
+            onClick={handleGenerateSimpleReport}
           >
             生成报告
           </Button>
@@ -136,10 +217,34 @@ const ReportManagement: React.FC = () => {
       </Card>
 
       <Modal
-        title="生成报告"
-        open={isPreviewVisible}
+        title="生成简单报告"
+        open={isModalVisible}
         onOk={handleModalOk}
-        onCancel={() => setIsPreviewVisible(false)}
+        onCancel={() => setIsModalVisible(false)}
+        okText="确认"
+        cancelText="取消"
+      >
+        {/* ... (Form for simple report remains the same) ... */}
+      </Modal>
+
+      <ReportGenerator
+        visible={isReportGeneratorVisible}
+        onCancel={() => setIsReportGeneratorVisible(false)}
+        onGenerate={handleAdvancedReportGenerated}
+        devices={devices}
+        knowledgeBase={knowledgeBase}
+      />
+    </div>
+  );
+};
+
+export default ReportManagement;
+
+      <Modal
+        title="生成简单报告" // Changed title for clarity
+        open={isModalVisible} // Changed from isPreviewVisible
+        onOk={handleModalOk}
+        onCancel={() => setIsModalVisible(false)} // Changed from setIsPreviewVisible
         okText="确认"
         cancelText="取消"
       >
@@ -152,9 +257,12 @@ const ReportManagement: React.FC = () => {
             label="设备名称"
             rules={[{ required: true, message: '请选择设备' }]}
           >
-            <Select>
-              <Select.Option value="离心泵-01">离心泵-01</Select.Option>
-              <Select.Option value="电机-02">电机-02</Select.Option>
+            <Select placeholder="请选择设备">
+              {devices.map(device => (
+                <Select.Option key={device.key} value={device.name}>
+                  {device.name}
+                </Select.Option>
+              ))}
             </Select>
           </Form.Item>
           <Form.Item

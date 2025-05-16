@@ -6,7 +6,8 @@ import {
   AppstoreOutlined,
   AreaChartOutlined,
   ToolOutlined,
-  FileTextOutlined
+  FileTextOutlined,
+  BookOutlined // 新增知识库图标
 } from '@ant-design/icons';
 
 const { Sider } = Layout;
@@ -36,6 +37,11 @@ const menuItems = [
     key: '/reports',
     icon: <FileTextOutlined />,
     label: '报告管理'
+  },
+  {
+    key: '/knowledge-base',
+    icon: <BookOutlined />,
+    label: '知识库管理'
   }
 ];
 

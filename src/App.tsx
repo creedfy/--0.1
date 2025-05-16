@@ -8,6 +8,7 @@ import DeviceManagement from './pages/DeviceManagement';
 import DataAnalysis from './pages/DataAnalysis';
 import MaintenancePlan from './pages/MaintenancePlan';
 import ReportManagement from './pages/ReportManagement';
+import KnowledgeBase from './pages/KnowledgeBase'; // 导入新的知识库页面组件
 
 const { Content } = Layout;
 
@@ -33,6 +34,7 @@ const App: React.FC = () => {
               <Route path="/analysis" element={<DataAnalysis />} />
               <Route path="/maintenance" element={<MaintenancePlan />} />
               <Route path="/reports" element={<ReportManagement />} />
+              <Route path="/knowledge-base" element={<KnowledgeBase />} /> {/* 添加知识库路由 */}
             </Routes>
           </Content>
         </Layout>

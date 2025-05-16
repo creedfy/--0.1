@@ -42,3 +42,22 @@ export interface NotificationItem {
   description: string;
   read: boolean;
 }
+
+// 知识库条目接口
+export interface KnowledgeBaseEntry {
+  id: string;
+  title: string;
+  content: string; // Markdown格式的内容
+  tags?: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+// 报告配置接口 (用于生成高级报告)
+export interface ReportConfig {
+  deviceId: string;
+  reportType: string;
+  timeRange: [string, string];
+  includeKnowledgeBase: boolean;
+  // ... 其他报告生成相关配置
+}
